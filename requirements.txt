@@ -1,0 +1,6 @@
+ping3
+netmiko
+requests
+pandas
+cryptography
+python_dotenv
