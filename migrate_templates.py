@@ -28,14 +28,15 @@ if __name__ == "__main__":
         edges = list(csv.DictReader(csv_file))
     print('Devices listed in this file:')
     for edge in edges:
-        edge['host-name2'] = f'sdw{edge["overlay2"]}'+edge['host-name1'].removeprefix('sdw')
-        print(f' - {edge["host-name1"]} -> {edge["host-name2"]} on Overlay {edge["overlay2"]}')
+        edge['host-name2'] = f'{cedge_prefix}' + \
+                             edge['host-name1'].removeprefix(vedge_prefix).removesuffix(vedge_suffix) + \
+                             f'{cedge_suffix}'
+        print(f' - {edge["host-name1"]} -> {edge["host-name2"]} on {edge["uuid2"]}')
     if input('\nType "yes" to migrate these devices: \n') != 'yes':
         exit()
 
-    # Prompt for vManage Credentials and login to each vManage
+    # Login to each vManage
 
-    # vmanageUser, vmanagePassword = get_credentials('vManage 1.0')
     try:
         vm_session1 = rest_api_lib(vmanage1, vmanage_user, vmanage_password)
     except Exception as e:
@@ -67,14 +68,14 @@ if __name__ == "__main__":
             if edge['host-name1'] == device['host-name']:
                 edge['system-ip'] = device['system-ip']
                 edge['uuid1'] = device['uuid']
-                print(f'Added sys-ip & uuid to: {edge}')
+                print(f'Added sys-ip & uuid to: {edge["host-name1"]}')
 
     # Get Attached TemplateId1 and Name1 for each hostname
 
     vedge_list1 = vm_session1.get_request('system/device/vedges')['data']
     for device in vedge_list1:
         for edge in edges:
-            print(f'Lookup template for {edge}')
+            print(f'Lookup template for {edge["host-name1"]}')
             try:
                 if edge['uuid1'] == device['uuid']:
                     edge['templateName1'] = device['template']
@@ -92,14 +93,15 @@ if __name__ == "__main__":
                 edge['templateId2'] = template['templateId']
 
     # Get UUID for each host-name
+    # Note: This code is used for migrating vEdge-cloud to C8Kv.  It's unnecessary for hardware cEdge
 
-    c8k_edges = vm_session2.get_request('system/device/vedges?model=vedge-C8000V&state=tokengenerated')['data']
-    if len(c8k_edges) < len(edges):
-        print(f'TOO FEW C8K AVAILABLE ... There are:\n{len(c8k_edges)} C8000v in "Token Generated" state and\n'
-              f'{len(edges)} devices in the CSV file list.')
-        exit()
-    for edge in edges:
-        edge['uuid2'] = c8k_edges.pop()['uuid']
+    # c8k_edges = vm_session2.get_request('system/device/vedges?model=vedge-C8000V&state=tokengenerated')['data']
+    # if len(c8k_edges) < len(edges):
+    #     print(f'TOO FEW C8K AVAILABLE ... There are:\n{len(c8k_edges)} C8000v in "Token Generated" state and\n'
+    #           f'{len(edges)} devices in the CSV file list.')
+    #     exit()
+    # for edge in edges:
+    #     edge['uuid2'] = c8k_edges.pop()['uuid']
 
     # Migrate Edges
 

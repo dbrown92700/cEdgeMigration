@@ -1,4 +1,4 @@
-host-name1,templateName2
-rtr1111,cEdge_Template1
-rtr2222,cEdge_Template2
-rtr3333,cEdge_Template1
+host-name1,uuid2,templateName2
+rtr1111,C1111X-8P-FLC387529GJ,cEdge_Template1
+rtr2222,C8200-FLD421323AB,cEdge_Template2
+rtr3333,C8300-GRK231715GJ,cEdge_Template1
